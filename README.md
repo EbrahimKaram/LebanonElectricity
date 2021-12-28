@@ -45,3 +45,24 @@ The final Station and their ID numbers are in `StationIDs.csv`
 Now we have the ID per station.
 
 ### Doing The requests
+Now we just needs to do the request for every station. You can see how this was done with the script `getExitsPerStation.py`. The data was exported to Exit Directory.
+
+The response for each of these requests looks like the following.
+```
+{
+  "results": [{
+    "id": "29",
+    "text": "أريسكو+وادي ابو جميل"
+  }, {
+    "id": "1010",
+    "text": "أسود"
+  }, {
+    "id": "25",
+    "text": "باريس"
+  }.....]
+}
+
+```
+The next step would be to unify all of this into readable format. s
+## Merging the Data into one Place
+The ideal would be to merge this into one CSV.
