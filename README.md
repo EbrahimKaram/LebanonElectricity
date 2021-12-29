@@ -24,6 +24,10 @@ The Exits per station can range from 1 to 41
 الحرج station has the most exits (41)
 نهر ابراهيم 3 has the least exits (1)
 
+الحرج is most probably located near the capital which would explain why it has so many exits.
+
+On average, every station would have 13 exits but the standard deviation is 9. That would mean 68 percent of the stations have a value between 13-9 and 13+9 if this was a normal distribution. 4 and 22 . In our exact case, it would be 57 out of 78 stations have number of exits between 4 and 22 so 73 percent.
+
 # How was this done
 ## Getting The Exits per Station
 Whenever a station field is selected, there is a POST request to https://www.edl.gov.lb/feedingdata.php
