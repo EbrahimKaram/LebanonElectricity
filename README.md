@@ -5,8 +5,8 @@ Now there is a website from EDL that provides when the Cutoffs would be.
 https://www.edl.gov.lb/feeding.php
 
 There are two fields
-- محطة The station
-- مخرج The Exit
+- `محطة` The station
+- `مخرج` The Exit
 
 The problem it's hard to know which station is related to my interest. It's better to get all that data making it a bit more accessible.
 
@@ -21,10 +21,10 @@ From our Analysis, we know that there are 993 exits in total.
 
 The Exits per station can range from 1 to 41
 
-الحرج station has the most exits (41)
-نهر ابراهيم 3 has the least exits (1)
+`الحرج` station has the most exits (41)
+`نهر ابراهيم 3` has the least exits (1)
 
-الحرج is most probably located near the capital which would explain why it has so many exits.
+`الحرج` is most probably located near the capital which would explain why it has so many exits.
 
 On average, every station would have 13 exits but the standard deviation is 9. That would mean 68 percent of the stations have a value between 13-9 and 13+9 if this was a normal distribution. 4 and 22 . In our exact case, it would be 57 out of 78 stations have number of exits between 4 and 22 so 73 percent.
 
@@ -37,8 +37,8 @@ The payload is in the following manner
 > id: 2
 
 Mode doesn't change between requests. ID is the order that of the station in the list.
-صيدا الجديدة is 87
-الغاز is 1
+`صيدا الجديدة` is 87
+`الغاز ` is 1
 
 We don't know what the ID is for each station so we need to get those.
 ### Get the ID for Every Station
