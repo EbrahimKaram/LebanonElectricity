@@ -17,6 +17,12 @@ You can see the full list via the `Stations.txt`
 ## The Exits
 Every one of those stations has several exits and it seems those exits are region specific.
 the names are sometimes counties and areas but not always.
+From our Analysis, we know that there are 993 exits in total.
+
+The Exits per station can range from 1 to 41
+
+الحرج station has the most exits (41)
+نهر ابراهيم 3 has the least exits (1)
 
 # How was this done
 ## Getting The Exits per Station
@@ -68,4 +74,6 @@ The next step would be to unify all of this into readable format. s
 The ideal would be to merge this into one CSV. The python script that would do it is `mergeData.py`.
 From this we can understand that they are 993 exits in total.
 
-The CSV 
+The CSV can be found in the `Data` folder. There is an excel file as well. Please note that the encoding is in UTF-8 which isn't the default for Microsoft Excel
+# Analysis
+We know that
