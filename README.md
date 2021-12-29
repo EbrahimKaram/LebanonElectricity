@@ -65,4 +65,7 @@ The response for each of these requests looks like the following.
 ```
 The next step would be to unify all of this into readable format. s
 ## Merging the Data into one Place
-The ideal would be to merge this into one CSV.
+The ideal would be to merge this into one CSV. The python script that would do it is `mergeData.py`.
+From this we can understand that they are 993 exits in total.
+
+The CSV 
