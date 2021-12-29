@@ -79,5 +79,19 @@ The ideal would be to merge this into one CSV. The python script that would do i
 From this we can understand that they are 993 exits in total.
 
 The CSV can be found in the `Data` folder. There is an excel file as well. Please note that the encoding is in UTF-8 which isn't the default for Microsoft Excel
-# Analysis
-We know that
+
+# Getting the Cutoff Hours
+
+The request has the following form data
+This is all sent as a POST request the the url `https://www.edl.gov.lb/feedingdata.php`
+
+```
+a_substations: 20
+a_feeders: 321
+d1: 2021-12-27
+d2: 2021-12-30
+mode: load
+actpre: act
+```
+
+a_substations would be the station ID. a_feeders is the exit ID
