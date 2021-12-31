@@ -95,3 +95,17 @@ actpre: act
 ```
 
 a_substations would be the station ID. a_feeders is the exit ID
+
+
+
+
+# TODO
+https://towardsdatascience.com/a-brief-introduction-to-time-series-classification-algorithms-7b4284d31b97
+Read the article above and see if we can forcast cutoffs
+We might just use Facebook prophet.
+Ideas are coming from this Facebook Post
+https://www.facebook.com/groups/DevCBeirut/permalink/4630462727071047/
+hour-by-hour binary classification
+
+There's a forcaster online
+https://forecastr-io.herokuapp.com/
