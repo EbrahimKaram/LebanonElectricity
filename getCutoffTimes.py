@@ -48,3 +48,9 @@ if __name__ == '__main__':
 
     df.drop(["dateoffeeding", "hour of day", "f_type", "s_type", "f_rank",
              "s_rank", "fid", "kadesha", "excepted"], axis=1, inplace=True)
+
+    df.rename({'time': 'Electricity'}, axis='columns', inplace=True)
+
+    # Reference to sort the columns the way you like
+    # https://stackoverflow.com/questions/13148429/how-to-change-the-order-of-dataframe-columns
+    
