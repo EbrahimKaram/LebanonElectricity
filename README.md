@@ -100,6 +100,10 @@ a_substations would be the station ID. a_feeders is the exit ID
 
 
 # TODO
+## Reading up on Time Series Classification
+Time Series Classification
+We have time data.
+
 https://towardsdatascience.com/a-brief-introduction-to-time-series-classification-algorithms-7b4284d31b97
 Read the article above and see if we can forcast cutoffs
 We might just use Facebook prophet.
@@ -107,5 +111,19 @@ Ideas are coming from this Facebook Post
 https://www.facebook.com/groups/DevCBeirut/permalink/4630462727071047/
 hour-by-hour binary classification
 
-There's a forcaster online
+There's a forecaster online
 https://forecastr-io.herokuapp.com/
+
+We might need to use sktime but we need to convert time into an hour by hour data.
+
+The most popular approach might be RISE which is what prophet is. (prophet is the open source porject from facebook)
+
+https://www.sktime.org/en/latest/examples/rocket.html
+It seems the best naïve approach is to use prophet in our case since I really presume there is a frequency here. The article at first recommends rocket if we really don't know anything.
+
+### Our Scenario
+We presume that cutoffs have a kind of periodicity. It's not entirely random. In a raw Fourier Analysis, there should be some kind of frequency to the readings.
+
+We are doing binary classification on the time series data. There is electricity or there is not. Since we only have two outcomes or two classes, this called binary classification.
+
+Now on every day there are 24 readings. In order to benefit from the periodicity of the data we need to convert 24 columns into 24 rows. It will make the model a bit more scalable. It would allows us to memorize less data.
