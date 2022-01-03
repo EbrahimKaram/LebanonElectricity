@@ -134,6 +134,20 @@ The response would look as such
 ```
 
 
+## Making the Data hourly instead of daily
+The data is a bit to wide.
+https://pandas.pydata.org/docs/reference/api/pandas.wide_to_long.html
+We want the hour data to be its own entry so we can do temporal Analysis easier.
+Check for `getCutoffTimes.py` to see how this works.
+
+Now there is a lot of data that comes back. I'm gonna remove the data that seems redundant. I converted the response into a dataframe and I'm gonna remove the data that seems useless.
+
+```
+for column in df2.columns:
+    print(column,df2[column].unique())
+```
+We had 39 columns now we only have 9. 
+
 
 
 # TODO and other Tasks

@@ -30,3 +30,21 @@ if __name__ == '__main__':
     data = json.load(reader)
     df = pd.DataFrame(data["list_feeders"])
     print(df.head())
+    print(df.columns)
+# Reference
+# https://pandas.pydata.org/docs/reference/api/pandas.wide_to_long.html
+
+    df = pd.wide_to_long(df, stubnames='time',
+                         i='dateoffeeding', j='hour of day')
+    df.sort_values(["dateoffeeding", "hour of day"], inplace=True)
+    df.reset_index(inplace=True)
+
+    # To get the timestamp back
+    # https://stackoverflow.com/questions/38355816/pandas-add-timedelta-column-to-datetime-column-vectorized
+    df['dateoffeeding'] = pd.to_datetime(df['dateoffeeding'])
+
+    df["TimeStamp"] = df["dateoffeeding"] + \
+        pd.to_timedelta(df['hour of day'], 'h')
+
+    df.drop(["dateoffeeding", "hour of day", "f_type", "s_type", "f_rank",
+             "s_rank", "fid", "kadesha", "excepted"], axis=1, inplace=True)
