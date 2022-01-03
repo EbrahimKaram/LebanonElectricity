@@ -96,10 +96,47 @@ actpre: act
 
 a_substations would be the station ID. a_feeders is the exit ID
 
+Now we need to get the cutoff times. Let's get the data of the past two weeks and try to convert the response into an hourly CSV.
+
+We will export the data of each exit into `Cutoff Times`.
+
+Sometimes you will get null responses that just throws a row of nulls.
+`dateoffeeding` would be set to null in this case.
+
+The response would look as such
+
+```
+{
+  "status": true,
+  "list_feeders": [{
+    "substationid": "18",
+    "substationname": "بكفيا",
+    "s_type": "OUT",
+    "kadesha": "N",
+    "s_rank": "0",
+    "fid": "305",
+    "feedername": "بسكنتا",
+    "subgroup": "B1",
+    "excepted": "0",
+    "f_type": "OUT   ",
+    "f_rank": "0",
+    "id": "3661152",
+    "dateoffeeding": "2021-12-20",
+    "feederid": "305",
+    "time0": "0",
+    ......
+    "time22": "0",
+    "time23": "0",
+    "user_id": "13"
+  },....
+  ]
+}
+```
 
 
 
-# TODO
+
+# TODO and other Tasks
 ## Reading up on Time Series Classification
 Time Series Classification
 We have time data.
