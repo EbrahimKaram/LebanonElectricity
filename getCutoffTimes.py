@@ -7,7 +7,7 @@ import json
 def getDataForExit(station_ID, exit_ID):
     today = pd.to_datetime("today")
     print(today.strftime('%Y-%m-%d'))
-    two_weeks_ago = today - timedelta(weeks=2)
+    two_weeks_ago = today - timedelta(days=15)
     print(two_weeks_ago.strftime('%Y-%m-%d'))
     url = 'https://www.edl.gov.lb/feedingdata.php'
 
@@ -29,8 +29,6 @@ if __name__ == '__main__':
     reader = open("Cuttoff Times/Baskinta.json", encoding='utf-8')
     data = json.load(reader)
     df = pd.DataFrame(data["list_feeders"])
-    print(df.head())
-    print(df.columns)
 # Reference
 # https://pandas.pydata.org/docs/reference/api/pandas.wide_to_long.html
 
@@ -49,8 +47,15 @@ if __name__ == '__main__':
     df.drop(["dateoffeeding", "hour of day", "f_type", "s_type", "f_rank",
              "s_rank", "fid", "kadesha", "excepted"], axis=1, inplace=True)
 
-    df.rename({'time': 'Electricity'}, axis='columns', inplace=True)
+    df.rename({'time': 'Electricity', 'substationname': 'Station Name', 'substationid': 'Station ID', 'feedername': 'Exit Name', 'feederid': 'Exit ID'},
+              axis='columns', inplace=True)
 
     # Reference to sort the columns the way you like
     # https://stackoverflow.com/questions/13148429/how-to-change-the-order-of-dataframe-columns
-    
+    # columns_reorder = df.columns.to_list()
+    # columns_reorder = [columns_reorder[-1]] + \
+    #     [columns_reorder[-2]]+columns_reorder[2:-2]
+    columns_wanted = ["TimeStamp", "Electricity", "id",
+                      "Station Name", "Station ID", "Exit Name", "Exit ID"]
+    df = df[columns_wanted]
+    df.to_csv("Cuttoff Times/Sample Baskinta.csv", index=False)
