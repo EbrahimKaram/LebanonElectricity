@@ -74,8 +74,8 @@ if __name__ == '__main__':
 
     for index, row in station_legend_df.iterrows():
 
-        print(row['Station Name'], row['Exit Name'],index)
-        if(index in [59,137]):
+        print(row['Station Name'], row['Exit Name'], index)
+        if(index in [59, 137, 172, 188, 195]):
             print("We know these have a false status")
             continue
         filename = "Cuttoff Times/" + str(row["Station ID"]) +\
