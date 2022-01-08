@@ -21,19 +21,12 @@ def getDataForExit(station_ID, exit_ID, days_back=15):
     #     f.write(x.text)
 
 
-if __name__ == '__main__':
-    # 162,1D,10,البوشرية
-    # the one above didn't have any data published. I presume that the exit is just dead or didn't have data for the period
-    # 305	بسكنتا	18	بكفيا
-
-    station_ID = 18
-    exit_ID = 305
-    reader = open("Cuttoff Times/Baskinta.json", encoding='utf-8')
-    data = json.load(reader)
-    if(data["list_feeders"]["dateoffeeding"] == null):
-        print("We need to skip this one")
-        continue
-    df = pd.DataFrame(data["list_feeders"])
+def getCSVData(jsondata):
+    if(jsondata["list_feeders"][0]["dateoffeeding"] == None):
+        print("We need to skip this one ",
+              jsondata["list_feeders"][0]["dateoffeeding"])
+        return
+    df = pd.DataFrame(jsondata["list_feeders"])
 # Reference
 # https://pandas.pydata.org/docs/reference/api/pandas.wide_to_long.html
 
@@ -63,4 +56,28 @@ if __name__ == '__main__':
     columns_wanted = ["TimeStamp", "Electricity", "id",
                       "Station Name", "Station ID", "Exit Name", "Exit ID"]
     df = df[columns_wanted]
-    df.to_csv("Cuttoff Times/Sample Baskinta.csv", index=False)
+    return df
+
+
+if __name__ == '__main__':
+    # 162,1D,10,البوشرية
+    # the one above didn't have any data published. I presume that the exit is just dead or didn't have data for the period
+    # 305	بسكنتا	18	بكفيا
+
+    station_legend_df = pd.read_csv(
+        "Data\PowerHousesData.csv", encoding="utf-8")
+
+    for index, row in station_legend_df.iterrows():
+        if(index != 0):
+            break
+        print(row['Station Name'], row['Exit Name'])
+        station_ID = int(row["Station ID"])
+        exit_ID = int(row["Exit ID"])
+        reader = getDataForExit(station_ID, exit_ID)
+
+
+        jsondata = json.loads(reader)
+        df = getCSVData(jsondata)
+        if(not df.empty):
+            df.to_csv("Cuttoff Times/" + str(row["Station ID"]) +
+                      "_" + row["Station Name"] + "_" + str(row["Exit ID"]) + "_" + row["Exit Name"] + ".csv", index=False)
