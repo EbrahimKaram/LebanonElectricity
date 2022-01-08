@@ -73,9 +73,11 @@ if __name__ == '__main__':
         "Data\PowerHousesData.csv", encoding="utf-8")
 
     for index, row in station_legend_df.iterrows():
-        # if(index != 0):
-        #     break
-        print(row['Station Name'], row['Exit Name'])
+
+        print(row['Station Name'], row['Exit Name'],index)
+        if(index in [59,137]):
+            print("We know these have a false status")
+            continue
         filename = "Cuttoff Times/" + str(row["Station ID"]) +\
             "_" + row["Station Name"] + "_" + \
             str(row["Exit ID"]) + "_" + row["Exit Name"] + ".csv"
