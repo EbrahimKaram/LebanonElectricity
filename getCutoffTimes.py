@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 from datetime import date, timedelta
+from pathlib import Path
 import json
 
 
@@ -68,13 +69,18 @@ if __name__ == '__main__':
         "Data\PowerHousesData.csv", encoding="utf-8")
 
     for index, row in station_legend_df.iterrows():
-        if(index != 0):
-            break
+        # if(index != 0):
+        #     break
         print(row['Station Name'], row['Exit Name'])
+        filename = "Cuttoff Times/" + str(row["Station ID"]) +\
+            "_" + row["Station Name"] + "_" + \
+            str(row["Exit ID"]) + "_" + row["Exit Name"] + ".csv"
+        if(Path(filename).is_file()):
+            print("This was already gotten")
+            continue
         station_ID = int(row["Station ID"])
         exit_ID = int(row["Exit ID"])
         reader = getDataForExit(station_ID, exit_ID)
-
 
         jsondata = json.loads(reader)
         df = getCSVData(jsondata)
