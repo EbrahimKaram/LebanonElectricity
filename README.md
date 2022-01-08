@@ -146,7 +146,7 @@ Now there is a lot of data that comes back. I'm gonna remove the data that seems
 for column in df2.columns:
     print(column,df2[column].unique())
 ```
-We had 39 columns now we only have 9. 
+We had 39 columns now we only have 9.
 
 
 
@@ -156,7 +156,7 @@ Time Series Classification
 We have time data.
 
 https://towardsdatascience.com/a-brief-introduction-to-time-series-classification-algorithms-7b4284d31b97
-Read the article above and see if we can forcast cutoffs
+Read the article above and see if we can forecast cutoffs
 We might just use Facebook prophet.
 Ideas are coming from this Facebook Post
 https://www.facebook.com/groups/DevCBeirut/permalink/4630462727071047/

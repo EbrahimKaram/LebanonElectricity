@@ -23,6 +23,10 @@ def getDataForExit(station_ID, exit_ID, days_back=15):
 
 
 def getCSVData(jsondata):
+
+    if jsondata["status"] == False:
+        print("The status came back false for this one")
+        return
     if(jsondata["list_feeders"][0]["dateoffeeding"] == None):
         print("We need to skip this one ",
               jsondata["list_feeders"][0]["dateoffeeding"])
@@ -84,6 +88,6 @@ if __name__ == '__main__':
 
         jsondata = json.loads(reader)
         df = getCSVData(jsondata)
-        if(not df.empty):
+        if(isinstance(df, pd.DataFrame)):
             df.to_csv("Cuttoff Times/" + str(row["Station ID"]) +
                       "_" + row["Station Name"] + "_" + str(row["Exit ID"]) + "_" + row["Exit Name"] + ".csv", index=False)
