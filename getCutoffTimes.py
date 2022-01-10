@@ -22,14 +22,18 @@ def getDataForExit(station_ID, exit_ID, days_back=15):
     #     f.write(x.text)
 
 
-def getCSVData(jsondata):
+def getCSVData(jsondata, index):
 
     if jsondata["status"] == False:
         print("The status came back false for this one")
+        with open("Cuttoff Times\ingnoreIndexes.txt", mode='a') as f:
+            f.writeline(index)
         return
     if(jsondata["list_feeders"][0]["dateoffeeding"] == None):
         print("We need to skip this one ",
               jsondata["list_feeders"][0]["dateoffeeding"])
+        with open("Cuttoff Times\ingnoreIndexes.txt", mode='a') as f:
+            f.writeline(index)
         return
     df = pd.DataFrame(jsondata["list_feeders"])
 # Reference
@@ -68,14 +72,20 @@ if __name__ == '__main__':
     # 162,1D,10,البوشرية
     # the one above didn't have any data published. I presume that the exit is just dead or didn't have data for the period
     # 305	بسكنتا	18	بكفيا
-
+    requests.packages.urllib3.disable_warnings()
     station_legend_df = pd.read_csv(
         "Data\PowerHousesData.csv", encoding="utf-8")
 
     for index, row in station_legend_df.iterrows():
 
         print(row['Station Name'], row['Exit Name'], index)
-        if(index in [59, 137, 172, 188, 195]):
+        # Exit Matar seems down
+        indexes_to_ignore = []
+        with open("Cuttoff Times\ingnoreIndexes.txt", mode='r') as f:
+            indexes_to_ignore = f.read().splitlines()
+            indexes_to_ignore = list(map(int, indexes_to_ignore))
+
+        if(index in [59, 137, 172, 180, 188, 193, 195, 216, 217, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270] + indexes_to_ignore):
             print("We know these have a false status")
             continue
         filename = "Cuttoff Times/" + str(row["Station ID"]) +\
@@ -89,7 +99,7 @@ if __name__ == '__main__':
         reader = getDataForExit(station_ID, exit_ID)
 
         jsondata = json.loads(reader)
-        df = getCSVData(jsondata)
+        df = getCSVData(jsondata, index)
         if(isinstance(df, pd.DataFrame)):
             df.to_csv("Cuttoff Times/" + str(row["Station ID"]) +
                       "_" + row["Station Name"] + "_" + str(row["Exit ID"]) + "_" + row["Exit Name"] + ".csv", index=False)

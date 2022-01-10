@@ -178,3 +178,8 @@ We presume that cutoffs have a kind of periodicity. It's not entirely random. In
 We are doing binary classification on the time series data. There is electricity or there is not. Since we only have two outcomes or two classes, this called binary classification.
 
 Now on every day there are 24 readings. In order to benefit from the periodicity of the data we need to convert 24 columns into 24 rows. It will make the model a bit more scalable. It would allows us to memorize less data.
+
+## Binary Time Series Forecasting
+Facebook prophet won't work with binary or distinct outputs. We might need to use some statmodels.
+
+Now facebook prophet uses Stan which is used for Bayesian modeling.
