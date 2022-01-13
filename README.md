@@ -182,4 +182,4 @@ Now on every day there are 24 readings. In order to benefit from the periodicity
 ## Binary Time Series Forecasting
 Facebook prophet won't work with binary or distinct outputs. We might need to use some statmodels.
 
-Now facebook prophet uses Stan which is used for Bayesian modeling.
+Now Facebook prophet uses Stan which is used for Bayesian modeling.
