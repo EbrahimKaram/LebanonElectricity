@@ -27,13 +27,13 @@ def getCSVData(jsondata, index):
     if jsondata["status"] == False:
         print("The status came back false for this one")
         with open("Cuttoff Times\ingnoreIndexes.txt", mode='a') as f:
-            f.write(str(index)+"\n")
+            f.write(str(index) + "\n")
         return
     if(jsondata["list_feeders"][0]["dateoffeeding"] == None):
         print("We need to skip this one ",
               jsondata["list_feeders"][0]["dateoffeeding"])
         with open("Cuttoff Times\ingnoreIndexes.txt", mode='a') as f:
-            f.write(str(index)+"\n")
+            f.write(str(index) + "\n")
         return
     df = pd.DataFrame(jsondata["list_feeders"])
 # Reference
@@ -96,7 +96,7 @@ if __name__ == '__main__':
             continue
         station_ID = int(row["Station ID"])
         exit_ID = int(row["Exit ID"])
-        reader = getDataForExit(station_ID, exit_ID)
+        reader = getDataForExit(station_ID, exit_ID, days_back=20)
 
         jsondata = json.loads(reader)
         df = getCSVData(jsondata, index)
