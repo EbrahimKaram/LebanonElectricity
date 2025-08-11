@@ -1,14 +1,19 @@
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-import matplotlib.pyplot as plt
-import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
 import glob
 import os
+import json
 
 # === 1. Load all CSVs ===
-folder_path = "D:\\Bob On call\\Documents\\My projects\\LebanonElectricity\\Cuttoff Times"  # change if different
+folder_path = r"D:\Bob On call\Documents\My projects\LebanonElectricity\Cuttoff Times"
 all_files = glob.glob(os.path.join(folder_path, "*.csv"))
+
+# Remove files that do not start with a number
+all_files = [f for f in all_files if os.path.basename(f)[0].isdigit()]
+
+print(f"Found {len(all_files)} CSV files.")
 
 df_list = []
 for file in all_files:
@@ -21,76 +26,87 @@ for file in all_files:
 df_all = pd.concat(df_list, ignore_index=True)
 print(f"Loaded {len(df_all)} rows from {len(all_files)} CSV files.")
 
-# === 2. Let user choose a station ===
-stations = sorted(df_all["Station Name"].unique())
-print("\nAvailable stations:")
-for i, s in enumerate(stations):
-    print(f"{i}: {s}")
+# === 2. Feature engineering ===
+df_all = df_all.sort_values("TimeStamp").reset_index(drop=True)
+df_all["day_of_week"] = df_all["TimeStamp"].dt.dayofweek  # 0=Mon
+df_all["hour_of_day"] = df_all["TimeStamp"].dt.hour
+df_all["prev_hour_status"] = df_all.groupby(["Station Name", "Exit Name"])[
+    "Electricity"].shift(1).fillna(0)
 
-choice = int(input("\nEnter station number to forecast: "))
-station_name = stations[choice]
+# Remove NaNs created by shift
+df_all = df_all.dropna(subset=["prev_hour_status"])
 
-df_station = df_all[df_all["Station Name"] == station_name].copy()
-print(f"\nSelected station: {station_name} ({len(df_station)} records)")
+# Clean station and exit names before encoding
+df_all["Station Name"] = df_all["Station Name"].fillna("Unknown").astype(str)
+df_all["Exit Name"] = df_all["Exit Name"].fillna("Unknown").astype(str)
 
-# === 3. Feature engineering ===
-df_station["day_of_week"] = df_station["TimeStamp"].dt.dayofweek
-df_station["hour_of_day"] = df_station["TimeStamp"].dt.hour
-df_station["prev_hour_status"] = df_station["Electricity"].shift(1).fillna(0)
+# Encode station and exit names to integers for the model
+station_encoder = LabelEncoder()
+exit_encoder = LabelEncoder()
 
-# Remove first row if NaN after shift
-df_station = df_station.dropna()
+df_all["station_encoded"] = station_encoder.fit_transform(
+    df_all["Station Name"])
+df_all["exit_encoded"] = exit_encoder.fit_transform(df_all["Exit Name"])
 
-# Features & target
-X = df_station[["day_of_week", "hour_of_day", "prev_hour_status"]]
-y = df_station["Electricity"]
+# === 3. Train one big model for all stations/exits ===
+feature_cols = ["day_of_week", "hour_of_day",
+                "prev_hour_status", "station_encoded", "exit_encoded"]
+X = df_all[feature_cols]
+y = df_all["Electricity"]
 
-# Train model
 model = RandomForestClassifier(n_estimators=300, random_state=42)
 model.fit(X, y)
 
-# === 4. Weekly forecast ===
-weekly_forecast = []
-for day in range(7):
-    for hour in range(24):
-        avg_prev = df_station.loc[
-            (df_station["day_of_week"] == day) & (df_station["hour_of_day"] == (hour - 1) % 24),
-            "Electricity"
-        ].mean()
-        avg_prev = 0 if np.isnan(avg_prev) else avg_prev
-        prob_on = model.predict_proba([[day, hour, avg_prev]])[0][1]
-        weekly_forecast.append({
-            "Day": day,
-            "Hour": hour,
-            "Prob_ON": round(prob_on, 2)
-        })
+# === 4. Generate predictions for each station/exit ===
+output = []
+day_map = {0: "Mon", 1: "Tue", 2: "Wed",
+           3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"}
 
-forecast_df = pd.DataFrame(weekly_forecast)
+stations = df_all[["Station Name", "Station ID"]].drop_duplicates()
+exits = df_all[["Station Name", "Exit Name", "Exit ID"]].drop_duplicates()
 
-# Map day numbers to names
-day_map = {0: "Monday", 1: "Tuesday", 2: "Wednesday", 3: "Thursday",
-           4: "Friday", 5: "Saturday", 6: "Sunday"}
-forecast_df["Day"] = forecast_df["Day"].map(day_map)
+for _, exit_row in exits.iterrows():
+    station_name = exit_row["Station Name"]
+    exit_name = exit_row["Exit Name"]
+    exit_id = exit_row["Exit ID"]
+    station_id = stations.loc[stations["Station Name"]
+                              == station_name, "Station ID"].values[0]
 
-# Pivot to table
-forecast_table = forecast_df.pivot(index="Hour", columns="Day", values="Prob_ON")
+    station_enc = station_encoder.transform([station_name])[0]
+    exit_enc = exit_encoder.transform([exit_name])[0]
 
-# Save CSV
-output_csv = f"weekly_forecast_{station_name}.csv"
-forecast_table.to_csv(output_csv)
-print(f"\nForecast saved to {output_csv}")
+    forecast_list = []
+    for day in range(7):
+        for hour in range(24):
+            # historical avg prev_hour_status for this exit
+            avg_prev = df_all.loc[
+                (df_all["Station Name"] == station_name) &
+                (df_all["Exit Name"] == exit_name) &
+                (df_all["day_of_week"] == day) &
+                (df_all["hour_of_day"] == (hour - 1) % 24),
+                "Electricity"
+            ].mean()
+            avg_prev = 0 if np.isnan(avg_prev) else avg_prev
 
-# === 5. Plot heatmap ===
-plt.figure(figsize=(10, 6))
-sns.heatmap(
-    forecast_table,
-    annot=True,
-    cmap="YlGnBu",
-    cbar_kws={'label': 'Probability of Electricity ON'},
-    fmt=".2f"
-)
-plt.title(f"Weekly Electricity Availability Forecast — {station_name}")
-plt.ylabel("Hour of Day")
-plt.xlabel("Day of Week")
-plt.tight_layout()
-plt.show()
+            prob_on = model.predict_proba(
+                [[day, hour, avg_prev, station_enc, exit_enc]])[0][1]
+
+            forecast_list.append({
+                "day": day_map[day],
+                "hour": hour,
+                "has_power": int(prob_on >= 0.5)  # binary yes/no
+            })
+
+    output.append({
+        "station": station_name,
+        "exit": exit_name,
+        "station_id": int(station_id) if not pd.isna(station_id) else None,
+        "exit_id": int(exit_id) if not pd.isna(exit_id) else None,
+        "forecast": forecast_list
+    })
+
+# === 5. Save JSON ===
+with open("all_forecasts.json", "w", encoding="utf-8") as f:
+    json.dump(output, f, ensure_ascii=False, indent=2)
+
+print(f"Saved forecasts for {len(output)} exits to all_forecasts.json")
