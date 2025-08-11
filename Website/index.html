@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Electricity Forecast</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.2.0/dist/chartjs-chart-matrix.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #controls { margin-bottom: 20px; }
+    select { padding: 5px; margin-right: 10px; }
+    canvas { max-width: 800px; }
+  </style>
+</head>
+<body>
+
+<h2>Electricity Forecast Heatmap</h2>
+
+<div id="controls">
+  <select id="stationSelect"></select>
+  <select id="exitSelect"></select>
+</div>
+
+<canvas id="heatmap"></canvas>
+
+<script>
+let forecastsData = [];
+let chart;
+
+fetch('all_forecasts.json')
+  .then(res => res.json())
+  .then(data => {
+    forecastsData = data;
+    populateStationSelect();
+  });
+
+function populateStationSelect() {
+  const stations = [...new Set(forecastsData.map(d => d.station))];
+  const stationSelect = document.getElementById('stationSelect');
+  stationSelect.innerHTML = stations.map(s => `<option value="${s}">${s}</option>`).join('');
+  stationSelect.addEventListener('change', populateExitSelect);
+  populateExitSelect();
+}
+
+function populateExitSelect() {
+  const station = document.getElementById('stationSelect').value;
+  const exits = forecastsData.filter(d => d.station === station).map(d => d.exit);
+  const exitSelect = document.getElementById('exitSelect');
+  exitSelect.innerHTML = exits.map(e => `<option value="${e}">${e}</option>`).join('');
+  exitSelect.addEventListener('change', updateChart);
+  updateChart();
+}
+
+function updateChart() {
+  const station = document.getElementById('stationSelect').value;
+  const exit = document.getElementById('exitSelect').value;
+  const selected = forecastsData.find(d => d.station === station && d.exit === exit);
+  
+  const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const chartData = selected.forecast.map(f => ({
+    x: f.hour,
+    y: dayOrder.indexOf(f.day),
+    v: f.has_power
+  }));
+
+  const ctx = document.getElementById('heatmap').getContext('2d');
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'matrix',
+    data: {
+      datasets: [{
+        label: 'Power Status',
+        data: chartData,
+        backgroundColor: ctx => ctx.dataset.data[ctx.dataIndex].v ? 'green' : 'red',
+        width: ({chart}) => (chart.chartArea.width / 24) - 2,
+        height: ({chart}) => (chart.chartArea.height / 7) - 2
+      }]
+    },
+    options: {
+      scales: {
+        x: { type: 'linear', position: 'top', ticks: { stepSize: 1 } },
+        y: { type: 'linear', ticks: { stepSize: 1, callback: v => dayOrder[v] } }
+      }
+    }
+  });
+}
+</script>
+
+</body>
+</html>

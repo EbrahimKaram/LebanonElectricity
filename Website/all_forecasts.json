@@ -1,0 +1,30 @@
+[
+  {
+    "station": "Beirut Central",
+    "exit": "Hamra",
+    "forecast": [
+      {"day": "Mon", "hour": 0, "has_power": 0},
+      {"day": "Mon", "hour": 1, "has_power": 1},
+      {"day": "Mon", "hour": 2, "has_power": 1},
+      {"day": "Tue", "hour": 0, "has_power": 0}
+    ]
+  },
+  {
+    "station": "Beirut Central",
+    "exit": "Achrafieh",
+    "forecast": [
+      {"day": "Mon", "hour": 0, "has_power": 1},
+      {"day": "Mon", "hour": 1, "has_power": 0},
+      {"day": "Tue", "hour": 0, "has_power": 1}
+    ]
+  },
+  {
+    "station": "Tripoli Main",
+    "exit": "Mina",
+    "forecast": [
+      {"day": "Mon", "hour": 0, "has_power": 1},
+      {"day": "Mon", "hour": 1, "has_power": 1},
+      {"day": "Tue", "hour": 0, "has_power": 0}
+    ]
+  }
+]
