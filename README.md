@@ -149,6 +149,15 @@ for column in df2.columns:
 We had 39 columns now we only have 9.
 
 
+# ForeCasting
+
+I had chat GPT and Gemini work on this. 
+
+Chat GPT gave the initial algorithm but gemini made something faster and it is what I ended up using. 
+
+# Website
+
+This was a Chat GPT code that helped do this
 
 # TODO and other Tasks
 ## Reading up on Time Series Classification
