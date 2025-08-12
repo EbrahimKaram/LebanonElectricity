@@ -60,6 +60,9 @@
 <body>
 
     <h1>Lebanon Electricity Availability Forecast</h1>
+    <p>This heatmap visualizes the availability of electricity at different stations and exits in Lebanon over a week.
+        This data is based on historical data from 4 years ago. The Github repo linked <a target="_blank"
+            href="https://github.com/EbrahimKaram/LebanonElectricity">here</a>.</p>
     <div id="controls">
         <div class="control-group">
             <label for="stationSelect">Station:</label>
@@ -155,7 +158,7 @@
                     z[hourIndex][dayIndex] = f.has_power;
                 }
             });
-
+            const textValues = z.map(row => row.map(val => val !== null ? val.toFixed(2) : ''));
             const trace = {
                 z: z,
                 x: dayOrder,
@@ -167,6 +170,8 @@
                 ],
                 reversescale: false,
                 showscale: true,
+                text: textValues,
+                texttemplate: "%{text}",
                 zmin: 0,
                 zmax: 1
             };
@@ -180,14 +185,14 @@
                         color: '#1a202c'
                     }
                 },
-                xaxis: { 
-                    title: 'Day of Week', 
+                xaxis: {
+                    title: 'Day of Week',
                     automargin: true,
                     tickfont: { size: 14 }
                 },
-                yaxis: { 
-                    title: 'Hour of Day', 
-                    dtick: 1, 
+                yaxis: {
+                    title: 'Hour of Day',
+                    dtick: 1,
                     tickfont: { size: 14 }
                 },
                 margin: { t: 80, l: 80, r: 20, b: 50 },
