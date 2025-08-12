@@ -3,103 +3,199 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Electricity Forecast Heatmap (Plotly)</title>
+    <title>Lebanon Electricity Forecast Heatmap</title>
     <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding: 2rem;
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a202c;
+            margin-bottom: 2rem;
         }
 
         #controls {
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
-        select {
-            padding: 5px;
-            margin-right: 10px;
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+
+        .choices {
+            min-width: 250px;
+            font-size: 1rem;
+        }
+
+        #heatmap {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: white;
+            padding: 10px;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>Electricity Availability Heatmap</h1>
+    <h1>Lebanon Electricity Availability Forecast</h1>
     <div id="controls">
-        <label>Station:
+        <div class="control-group">
+            <label for="stationSelect">Station:</label>
             <select id="stationSelect"></select>
-        </label>
-        <label>Exit:
+        </div>
+        <div class="control-group">
+            <label for="exitSelect">Exit:</label>
             <select id="exitSelect"></select>
-        </label>
+        </div>
     </div>
 
     <div id="heatmap" style="width:100%;max-width:900px;height:600px;"></div>
 
     <script>
         let forecastsData = [];
+        let stationChoices;
+        let exitChoices;
 
         fetch('all_forecasts_optimized.json')
             .then(res => res.json())
             .then(data => {
                 forecastsData = data;
-                populateStationSelect();
+                initializeDropdowns();
+            })
+            .catch(error => {
+                console.error('Error fetching the JSON data:', error);
             });
 
-        function populateStationSelect() {
-            const stations = [...new Set(forecastsData.map(d => d.station))];
+        function initializeDropdowns() {
             const stationSelect = document.getElementById('stationSelect');
-            stationSelect.innerHTML = stations.map(s => `<option value="${s}">${s}</option>`).join('');
-            stationSelect.addEventListener('change', populateExitSelect);
+            const stations = [...new Set(forecastsData.map(d => d.station))];
+
+            stationChoices = new Choices(stationSelect, {
+                searchEnabled: true,
+                itemSelectText: '',
+            });
+            stationChoices.setChoices(
+                stations.map(s => ({ value: s, label: s })),
+                'value',
+                'label',
+                true
+            );
+
+            stationSelect.addEventListener('change', populateExitSelect, false);
             populateExitSelect();
         }
 
         function populateExitSelect() {
-            const station = document.getElementById('stationSelect').value;
-            const exits = forecastsData.filter(d => d.station === station).map(d => d.exit);
+            const station = stationChoices.getValue(true);
             const exitSelect = document.getElementById('exitSelect');
-            exitSelect.innerHTML = exits.map(e => `<option value="${e}">${e}</option>`).join('');
-            exitSelect.addEventListener('change', updateChart);
+
+            // If exitChoices is already initialized, clear and destroy it first
+            if (exitChoices) {
+                exitChoices.destroy();
+            }
+
+            const exits = forecastsData
+                .filter(d => d.station === station)
+                .map(d => d.exit);
+
+            exitChoices = new Choices(exitSelect, {
+                searchEnabled: true,
+                itemSelectText: '',
+            });
+            exitChoices.setChoices(
+                exits.map(e => ({ value: e, label: e })),
+                'value',
+                'label',
+                true
+            );
+
+            // Add event listener to the new Choices instance
+            exitSelect.addEventListener('change', updateChart, false);
+
             updateChart();
         }
 
         function updateChart() {
-            const station = document.getElementById('stationSelect').value;
-            const exit = document.getElementById('exitSelect').value;
+            const station = stationChoices.getValue(true);
+            const exit = exitChoices.getValue(true);
             const selected = forecastsData.find(d => d.station === station && d.exit === exit);
             if (!selected) return;
 
             const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-            // Create a 24 x 7 grid for days x hours
+            const hourOrder = Array.from({ length: 24 }, (_, i) => i);
+
             let z = Array(24).fill().map(() => Array(7).fill(null));
 
             selected.forecast.forEach(f => {
                 const dayIndex = dayOrder.indexOf(f.day);
-                z[f.hour][dayIndex] = f.has_power;
+                const hourIndex = hourOrder.indexOf(f.hour);
+                if (dayIndex !== -1 && hourIndex !== -1) {
+                    z[hourIndex][dayIndex] = f.has_power;
+                }
             });
 
             const trace = {
                 z: z,
                 x: dayOrder,
-                y: Array.from({ length: 24 }, (_, i) => i),
-
+                y: hourOrder,
                 type: 'heatmap',
                 colorscale: [
-                    [0, 'rgba(200,0,0,0.8)'],  // red for no power
-                    [1, 'rgba(0,200,0,0.8)']   // green for power
+                    [0, 'rgba(239, 68, 68, 0.8)'], // A slightly more muted red
+                    [1, 'rgba(16, 185, 129, 0.8)'] // A slightly more muted green
                 ],
                 reversescale: false,
-                showscale: true
+                showscale: true,
+                zmin: 0,
+                zmax: 1
             };
 
             const layout = {
-                title: `${station} — ${exit}`,
-                yaxis: { title: 'Hour of Day', dtick: 1 },
-                xaxis: { title: 'Day of Week', automargin: true },
-                margin: { t: 50, l: 80, r: 20, b: 50 }
+                title: {
+                    text: `${station} — ${exit}`,
+                    font: {
+                        family: 'Arial, sans-serif',
+                        size: 24,
+                        color: '#1a202c'
+                    }
+                },
+                xaxis: { 
+                    title: 'Day of Week', 
+                    automargin: true,
+                    tickfont: { size: 14 }
+                },
+                yaxis: { 
+                    title: 'Hour of Day', 
+                    dtick: 1, 
+                    tickfont: { size: 14 }
+                },
+                margin: { t: 80, l: 80, r: 20, b: 50 },
+                paper_bgcolor: 'white',
+                plot_bgcolor: 'white'
             };
 
-            Plotly.newPlot('heatmap', [trace], layout, { responsive: true });
+            Plotly.newPlot('heatmap', [trace], layout, { responsive: true, displayModeBar: false });
         }
     </script>
 
