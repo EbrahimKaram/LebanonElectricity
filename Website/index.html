@@ -70,12 +70,12 @@
             if (!selected) return;
 
             const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-            // Create a 7 x 24 grid for days x hours
-            let z = Array(7).fill().map(() => Array(24).fill(null));
+            // Create a 24 x 7 grid for days x hours
+            let z = Array(24).fill().map(() => Array(7).fill(null));
 
             selected.forecast.forEach(f => {
                 const dayIndex = dayOrder.indexOf(f.day);
-                z[dayIndex][f.hour] = f.has_power;
+                z[f.hour][dayIndex] = f.has_power;
             });
 
             const trace = {
