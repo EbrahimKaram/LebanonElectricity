@@ -69,7 +69,7 @@
 <body>
 
     <h1>Lebanon Electricity Availability Forecast</h1>
-    <p>This heatmap visualizes the availability of electricity at different stations and exits in Lebanon over a week.
+    <p style="text-align: center; margin:0 auto;">This heatmap visualizes the availability of electricity at different stations and exits in Lebanon over a week.
         This data is based on historical data from 4 years ago. The Github repo linked <a target="_blank"
             href="https://github.com/EbrahimKaram/LebanonElectricity">here</a>.</p>
     <div id="controls">
@@ -209,7 +209,7 @@
                 plot_bgcolor: 'white'
             };
 
-            Plotly.newPlot('heatmap', [trace], layout, { responsive: true, displayModeBar: false });
+            Plotly.newPlot('heatmap', [trace], layout, { responsive: true, displayModeBar: true });
         }
     </script>
 
